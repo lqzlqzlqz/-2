@@ -1,0 +1,198 @@
+#include"stdafx.h"
+#include <stdio.h>
+#include <math.h>
+#include <string>
+#include <assert.h>
+#include <iostream>
+#include <conio.h>  
+#include <cstdlib> 
+#include <time.h>
+using namespace std;
+
+
+int gys(int x, int y)    /*定义求最大公约数函数*/
+{
+	return y ? gys(y, x%y) : x;  /*递归调用gys，返回最大公约数*/
+}
+
+struct fengshu { int a; int b; };
+/*两个“分数”的四则运算*/
+fengshu jisuan(fengshu n1,fengshu n2 ,char op )
+{
+	fengshu jieguo;
+	switch (op) {
+	case '+': {
+		jieguo.a = n1.a*n2.b + n2.a*n1.b;
+		jieguo.b = n1.b*n2.b;
+		break;
+	}
+	case '-': {
+		jieguo.a = n1.a*n2.b - n2.a*n1.b;
+		jieguo.b = n1.b*n2.b;
+		break;
+	}
+	case '*': {
+		jieguo.a = n1.a*n2.a;
+		jieguo.b = n1.b*n2.b;
+		break;
+	}
+	case '/': {
+		jieguo.a = n1.a*n2.b;
+		jieguo.b = n1.b*n2.a;
+		break;
+	}
+	default: {
+		jieguo.a = 0;
+		jieguo.b = 1;
+	}
+	}
+	int t;
+	
+		t = gys(jieguo.a, jieguo.b);
+		jieguo.a = jieguo.a / t;
+		jieguo.b = jieguo.b / t;//约分
+	
+	return jieguo;
+}
+
+
+int main()
+{
+	char a;
+	cout << "开始测试请按“1”，退出程序请按“2”";
+		cin >> a;
+		while (a == '1')
+		{
+			time_t start, stop;
+			double dur, shijian;
+			time(&start);
+			
+		
+			
+			
+			int defeng;
+
+
+
+			srand((unsigned)time(NULL));//初始化随机
+			int i, n;//控制题目数量
+			int ture = 0;//计算正确率参数
+			int nandu = 0;//难度计分参数
+
+			char  op[10];//定义运算符
+			cout << "输入题目数量" << endl;
+			cin >> n;
+
+			start = clock();//计时
+			//生成一个算式并核对
+			for (i = 1; i <= n; i++)
+			{
+				srand((unsigned)time(NULL));
+				struct fengshu suijishu[11];
+				int q;//控制题目难度
+				q = rand() % 10 + 1;
+
+
+				for (int m = 0; m < q + 1; m++) {
+					suijishu[m].a = rand() % 10 + 1;
+					suijishu[m].b = rand() % 10 + 1;
+				}
+				for (int l = 0; l < q + 1; l++)
+				{
+					int k;
+					if (suijishu[l].a > suijishu[l].b)//控制生成真分数
+					{
+						int t;
+						t = suijishu[l].a; suijishu[l].a = suijishu[l].b; suijishu[l].b = t;
+					}
+
+					k = gys(suijishu[l].a, suijishu[l].b);
+					suijishu[l].a = suijishu[l].a / k;
+					suijishu[l].b = suijishu[l].b / k;
+
+				}
+
+				int  j, s, b;
+				//生成运算符
+
+
+				for (s = 0; s < q; s++)
+				{
+
+					j = rand() % 4;
+					switch (j)
+					{
+					case 0:op[s] = '+'; break;
+					case 1:op[s] = '-'; break;
+					case 2:op[s] = '*'; break;
+					case 3:op[s] = '/'; break;
+					}
+				}
+				cout << "第" << i << "题";
+				for (b = 0; b < q; b++)
+				{
+					cout << suijishu[b].a << '/' << suijishu[b].b << op[b] << suijishu[b].a;
+				}
+				cout << suijishu[q].a << '/' << suijishu[q].b << "=";
+
+				//计算结果
+				for (int n = 0; n < q; n++)
+				{
+					if (op[n] == '*' || op[n] == '/')
+					{
+						suijishu[n + 1] = jisuan(suijishu[n], suijishu[n + 1], op[n]);
+						op[n] = '+';
+						suijishu[n] = { 0,1 };
+
+					}
+				}
+				fengshu shuru, daan;
+				for (int o = 0; o < q; o++)
+				{
+					suijishu[o + 1] = jisuan(suijishu[o], suijishu[o + 1], op[o]);
+					daan = suijishu[o + 1];
+
+				}
+
+				cin >> shuru.a >> shuru.b;
+
+				if (shuru.a == daan.a&&shuru.b == daan.b)
+				{
+					cout << "正确" << endl;
+					ture = ture + 1;
+					nandu = nandu + 1;
+
+				}
+				else
+				{
+					cout << "不正确，答案=" << daan.a << "/" << daan.b << endl;
+				}
+			}
+			//计算得分
+			time(&stop);
+			
+			dur = difftime(stop,start);
+			shijian = 60 * n;
+		
+			if (dur <= shijian)
+			{
+				defeng = ture * 10 + nandu * 5;
+				cout << "您已按时完成测试，本次测试满分为：" << 10 * n << "，你的得分为：" << defeng << "完成难度较大题目数量为：" << nandu << endl;
+				cout << "重新测试请按“1”，退出程序请按“2”"<<endl;
+			}
+			else
+			{
+				defeng = ture * 10 + nandu * 5 - 20;
+                cout << "您未按时完成测试，本次测试满分为：" << 10*n << "，你的得分为：" << defeng << "完成难度较大题目数量为：" << nandu << endl;
+				cout << "重新测试请按“1”，退出程序请按“2”"<<endl;
+			}
+			char z;
+			cin >> z;
+			if (z == '1')
+				continue;
+			else
+				break;
+		}
+		
+
+}
